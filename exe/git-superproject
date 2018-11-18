@@ -1,0 +1,46 @@
+#!/usr/bin/env ruby
+
+lib = File.expand_path('../lib', __dir__)
+$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+require 'git/superproject'
+
+if (command = ARGV.shift)&.start_with? '++'
+  name = command[2..-1]
+  command = nil
+end
+
+# TODO: acquire flock on "~/.git/multi/superprojects.config"
+
+case (command ||= ARGV.shift)
+when /\A--/
+  case command
+  when '--version' then Git::Superproject::Commands.version
+  when '--help'    then Git::Superproject::Commands.help
+  else
+    config = Git::Superproject::Config.from(Git::SUPERPROJECTS_CONFIG)
+    case command
+    when '--config' then puts config.to_json
+    else
+      unless name
+        warn 'No superproject specified... aborting!'
+        exit(-1)
+      end
+      case command
+      when '--list'   then puts config.list(name).to_json
+      when '--add'    then puts config.add(name, ARGV).to_json
+      when '--remove' then puts config.remove(name, ARGV).to_json
+      else
+        abort \
+          "Unknown 'git superproject' command: #{command}\n\n" \
+          '(use --help/-h to list all available commands)'
+      end
+      config.write_to(Git::SUPERPROJECTS_CONFIG)
+    end
+  end
+when nil, '', '-h'
+  Git::Superproject::Commands.help
+end
+
+# TODO: release flock on "~/.git/multi/superprojects.config"
+
+# That's all Folks!
