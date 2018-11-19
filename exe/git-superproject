@@ -26,9 +26,9 @@ when /\A--/
         exit(-1)
       end
       case command
-      when '--list'   then puts config.list(name).to_json
-      when '--add'    then puts config.add(name, *ARGV).to_json
-      when '--remove' then puts config.remove(name, *ARGV).to_json
+      when '--list'   then config.list(name)
+      when '--add'    then config.add(name, *ARGV)
+      when '--remove' then config.remove(name, *ARGV)
       else
         abort \
           "Unknown 'git superproject' command: #{command}\n\n" \

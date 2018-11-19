@@ -4,6 +4,7 @@ require 'set'
 require 'json'
 require 'English'
 require 'pathname'
+require 'tempfile'
 require 'fileutils'
 
 module Git
@@ -37,21 +38,19 @@ module Git
       end
 
       def list(name)
-        @superprojects[name].to_a.sort
+        log_to($stdout, name)
       end
 
       def add(name, *repos)
         repos.each do |repo|
           add_to(name, repo)
         end
-        list(name)
       end
 
       def remove(name, *repos)
         repos.each do |repo|
           remove_from(name, repo)
         end
-        list(name)
       end
 
       def save(file)
@@ -90,9 +89,22 @@ module Git
         @superprojects[name].delete(repo)
       end
 
+      def repos_for(name)
+        @superprojects[name].to_a.sort
+      end
+
+      def log_to(io, name)
+        return unless io.tty?
+
+        config = Tempfile.new("#{name}_")
+        write_to(config.path, name)
+
+        io.write(File.read(config))
+      end
+
       def write_to(file, name)
         key = "superproject.#{name}.repo"
-        list(name).each do |repo|
+        repos_for(name).each do |repo|
           `git config --file #{file} --add #{key} #{repo}`
         end
       end
