@@ -48,14 +48,14 @@ module Git
         @superprojects[name]
       end
 
-      def add(name, repos)
+      def add(name, *repos)
         repos.each do |repo|
           @superprojects[name] << repo
         end
         @superprojects[name]
       end
 
-      def remove(name, repos)
+      def remove(name, *repos)
         repos.each do |repo|
           @superprojects[name].delete(repo)
         end
