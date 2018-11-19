@@ -1,5 +1,6 @@
 require 'git/superproject/version'
 
+require 'set'
 require 'json'
 require 'English'
 require 'pathname'
@@ -26,7 +27,7 @@ module Git
 
       def initialize(key_value_pairs)
         @superprojects = Hash.new do |superprojects, name|
-          superprojects[name] = []
+          superprojects[name] = Set.new # guarantee uniqueness
         end
 
         key_value_pairs.each do |key_value|
@@ -45,21 +46,21 @@ module Git
       end
 
       def list(name)
-        @superprojects[name]
+        @superprojects[name].to_a
       end
 
       def add(name, *repos)
         repos.each do |repo|
           @superprojects[name] << repo
         end
-        @superprojects[name]
+        @superprojects[name].to_a
       end
 
       def remove(name, *repos)
         repos.each do |repo|
           @superprojects[name].delete(repo)
         end
-        @superprojects[name]
+        @superprojects[name].to_a
       end
 
       def write_to(file)
