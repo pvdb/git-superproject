@@ -32,16 +32,7 @@ module Git
 
         key_value_pairs.each do |key_value|
           key, value = key_value.split('=')
-
-          key =~ /\Asuperproject\.(?<name>.*)\.repo\z/
-          raise "Invalid superproject key: #{key}" unless $LAST_MATCH_INFO
-
-          name = $LAST_MATCH_INFO[:name]
-
-          value =~ %r{\A[-\w]+/[-\w]+\z}
-          raise "Invalid repo name: #{value}" unless $LAST_MATCH_INFO
-
-          @superprojects[name] << value
+          process(key, value)
         end
       end
 
@@ -51,14 +42,14 @@ module Git
 
       def add(name, *repos)
         repos.each do |repo|
-          @superprojects[name] << repo
+          add_to(name, repo)
         end
         list(name)
       end
 
       def remove(name, *repos)
         repos.each do |repo|
-          @superprojects[name].delete(repo)
+          remove_from(name, repo)
         end
         list(name)
       end
@@ -80,6 +71,26 @@ module Git
 
       def to_json
         @superprojects.to_json
+      end
+
+      private
+
+      def process(key, repo)
+        key =~ /\Asuperproject\.(?<name>.*)\.repo\z/
+        raise "Invalid superproject key: #{key}" unless $LAST_MATCH_INFO
+
+        add_to($LAST_MATCH_INFO[:name], repo)
+      end
+
+      def add_to(name, repo)
+        repo =~ %r{\A[-.\w]+/[-.\w]+\z}
+        raise "Invalid repo name: #{repo}" unless $LAST_MATCH_INFO
+
+        @superprojects[name] << repo
+      end
+
+      def remove_from(name, repo)
+        @superprojects[name].delete(repo)
       end
 
     end
