@@ -7,6 +7,12 @@ require 'pathname'
 require 'tempfile'
 require 'fileutils'
 
+class Set
+  def to_json(*args)
+    to_a.to_json(*args)
+  end
+end
+
 module Git
 
   HOME                 = Pathname.new(Dir.home)
