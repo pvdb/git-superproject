@@ -53,24 +53,24 @@ module Git
         repos.each do |repo|
           @superprojects[name] << repo
         end
-        @superprojects[name].to_a
+        list(name)
       end
 
       def remove(name, *repos)
         repos.each do |repo|
           @superprojects[name].delete(repo)
         end
-        @superprojects[name].to_a
+        list(name)
       end
 
       def write_to(file)
         # create backup of original file
         FileUtils.mv(file, "#{file}~") if File.exist? file
 
-        @superprojects.each do |name, repos|
-          name = "superproject.#{name}.repo"
-          repos.each do |repo|
-            `git config --file #{file} --add #{name} #{repo}`
+        @superprojects.keys.each do |name|
+          key = "superproject.#{name}.repo"
+          list(name).each do |repo|
+            `git config --file #{file} --add #{key} #{repo}`
           end
         end
 
