@@ -29,6 +29,10 @@ when /\A--/
       when '--list'   then config.list(name)
       when '--add'    then config.add(name, *ARGV)
       when '--remove' then config.remove(name, *ARGV)
+      when '--edit'
+        finder = 'fzf --print0 --multi --border --height=50%'
+        candidates = ARGF.readlines.map(&:strip) # repos to select from...
+        config.edit(name, finder, candidates)
       else
         abort \
           "Unknown 'git superproject' command: #{command}\n\n" \

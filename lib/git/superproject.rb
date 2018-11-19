@@ -6,6 +6,7 @@ require 'English'
 require 'pathname'
 require 'tempfile'
 require 'fileutils'
+require 'io/console'
 
 class Set
   def to_json(*args)
@@ -57,6 +58,28 @@ module Git
         repos.each do |repo|
           remove_from(name, repo)
         end
+      end
+
+      def edit(name, finder, candidates = [])
+        log_to(IO.console, name)
+
+        tempfile = Tempfile.new('superproject_')
+        tempfile.write(candidates.join($RS))
+        tempfile.close # also ensures flushing!
+
+        until (repos = `#{finder} < #{tempfile.path}`.strip).empty?
+          repos.split("\0").each do |repo|
+            if repos_for(name).include? repo
+              IO.console.puts "Removing #{repo} from #{name}..."
+              remove_from(name, repo)
+            else
+              IO.console.puts "Adding #{repo} to #{name}..."
+              add_to(name, repo)
+            end
+          end
+        end
+
+        log_to(IO.console, name)
       end
 
       def save(file)
