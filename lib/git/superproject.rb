@@ -54,15 +54,12 @@ module Git
         list(name)
       end
 
-      def write_to(file)
+      def save(file)
         # create backup of original file
         FileUtils.mv(file, "#{file}~") if File.exist? file
 
         @superprojects.keys.each do |name|
-          key = "superproject.#{name}.repo"
-          list(name).each do |repo|
-            `git config --file #{file} --add #{key} #{repo}`
-          end
+          write_to(file, name)
         end
 
         # copy across all the comments from the original file
@@ -91,6 +88,13 @@ module Git
 
       def remove_from(name, repo)
         @superprojects[name].delete(repo)
+      end
+
+      def write_to(file, name)
+        key = "superproject.#{name}.repo"
+        list(name).each do |repo|
+          `git config --file #{file} --add #{key} #{repo}`
+        end
       end
 
     end

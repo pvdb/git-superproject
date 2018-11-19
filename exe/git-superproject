@@ -34,7 +34,7 @@ when /\A--/
           "Unknown 'git superproject' command: #{command}\n\n" \
           '(use --help/-h to list all available commands)'
       end
-      config.write_to(Git::SUPERPROJECTS_CONFIG)
+      config.save(Git::SUPERPROJECTS_CONFIG)
     end
   end
 when nil, '', '-h'
