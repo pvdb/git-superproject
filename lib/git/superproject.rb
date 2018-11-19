@@ -46,7 +46,7 @@ module Git
       end
 
       def list(name)
-        @superprojects[name].to_a
+        @superprojects[name].to_a.sort
       end
 
       def add(name, *repos)
